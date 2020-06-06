@@ -2,6 +2,7 @@ package pl.itacademy.tictactoe.domain;
 
 import lombok.Data;
 
+
 @Data
 public class Game {
     private int id;
