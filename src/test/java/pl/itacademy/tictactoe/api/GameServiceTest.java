@@ -71,6 +71,70 @@ class GameServiceTest {
         GameNotFoundException exception = assertThrows(GameNotFoundException.class, () -> gameService.makeMove(move));
 
         assertThat(exception.getMessage()).contains("1");
+    }
+
+    @Test
+    public void makeMove_cellNotEmpty_throwsIllegalMoveException() {
+
+    }
+
+    @Test
+    public void makeMove_gameAlreadyFinished_throwsIllegalMoveException() {
+
+    }
+
+    @Test
+    public void makeXMove_gameExpectsOMove_throwsIllegalMoveException() {
+
+    }
+
+    @Test
+    public void makeMove_wrongPassword_throwsWrongPasswordException() {
+
+    }
+
+//    @Test
+//    public void makeXMove_playerWon_changesGameStateToX_WON() {
+//
+//    }
+//
+//    @Test
+//    public void makeOMove_playerWon_changesGameStateToO_WON() {
+//
+//    }
+//
+//    @Test
+//    public void makeMove_gameDrawAfterMove_changesGameStateToDRAW() {
+//
+//    }
+
+    @Test
+    public void getGameState_returnsGameState() {
+
+    }
+
+    @Test
+    public void getGameState_nonExistingGameId_throwsGameNotFoundException() {
+
+    }
+
+    @Test
+    public void gameStatistic_playerHasGames_returnPlayerStatistic() {
+
+    }
+
+    @Test
+    public void gameStatistic_playerHasNoGames_throwsPlayerNotFoundException() {
+
+    }
+
+    @Test
+    public void playAgain_gameIdNotExists_throwsGameNotFoundException() {
+
+    }
+
+    @Test
+    public void playAgain_createsNewGameWithTheSamePlayers_and_stateX_MOVE() {
 
     }
 }
