@@ -1,6 +1,7 @@
 package pl.itacademy.tictactoe.api;
 
 import pl.itacademy.tictactoe.domain.*;
+import pl.itacademy.tictactoe.exception.GameNotFoundException;
 
 import java.util.Optional;
 
@@ -30,9 +31,9 @@ public class GameService implements GameInterface {
 
     @Override
     public GameResponse makeMove(Move move) {
-        Game game = new Game();
-        repository.addGame(game);
+        Game game = repository.getGameById(move.getGameId()).orElseThrow(() -> new GameNotFoundException("Game [" + move.getGameId() + "] not found"));
         game.setState(GameState.O_MOVE);
+
         game.getBoard()[move.getCellIndex()] = 'X';
         return GameResponse.from(game);
     }
