@@ -56,8 +56,7 @@ class GameInMemoryRepositoryTest {
         repository.addGame(game1);
         Game updated = new Game();
         updated.setId(1);
-        char[] board = new char[]{'X', 'X', 'X', 'O', 'X', 'X', 'X', 'X', 'O'};
-        updated.setBoard(board);
+
         repository.updateGame(updated);
         assertThat(repository.updateGame(updated)).isEqualTo(updated);
         assertThat(repository.games()).doesNotContain(game1);
@@ -70,8 +69,7 @@ class GameInMemoryRepositoryTest {
         repository.addGame(game1);
         Game updated = new Game();
         updated.setId(2);
-        char[] board = new char[]{'X', 'X', 'X', 'O', 'X', 'X', 'X', 'X', 'O'};
-        updated.setBoard(board);
+
         GameNotFoundException exception = assertThrows(GameNotFoundException.class, () -> repository.updateGame(updated));
         assertThat(exception.getMessage()).contains("2");
 
