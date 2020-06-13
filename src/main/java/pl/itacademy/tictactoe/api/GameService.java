@@ -30,7 +30,11 @@ public class GameService implements GameInterface {
 
     @Override
     public GameResponse makeMove(Move move) {
-        return null;
+        Game game = new Game();
+        repository.addGame(game);
+        game.setState(GameState.O_MOVE);
+        game.getBoard()[move.getCellIndex()] = 'X';
+        return GameResponse.from(game);
     }
 
     @Override
