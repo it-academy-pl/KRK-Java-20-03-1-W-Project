@@ -1,14 +1,20 @@
 package pl.itacademy.tictactoe.api;
 
-import pl.itacademy.tictactoe.domain.GameResponse;
-import pl.itacademy.tictactoe.domain.GameStatistics;
-import pl.itacademy.tictactoe.domain.Move;
-import pl.itacademy.tictactoe.domain.Player;
+import pl.itacademy.tictactoe.domain.*;
 
 public class GameService implements GameInterface {
+    private final GameRepository repository;
+
+    public GameService(GameRepository repository) {
+        this.repository = repository;
+    }
+
     @Override
     public GameResponse registerPlayer(Player player) {
-        return null;
+        Game game = new Game();
+        game.setXPlayer(player);
+        repository.addGame(game);
+        return new GameResponse(game.getId(), GameState.WAITING_FOR_REGISTRATION, game.getBoard());
     }
 
     @Override

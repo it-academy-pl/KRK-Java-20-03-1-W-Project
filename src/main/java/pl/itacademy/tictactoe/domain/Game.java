@@ -5,21 +5,19 @@ import java.util.Objects;
 
 public class Game {
     private Integer id;
-    private char[] board;
+    private final char[] board = new char[9];
     private Player xPlayer;
     private Player oPlayer;
     private GameState state;
 
-    public Game(Integer id, char[] board, Player xPlayer, Player oPlayer, GameState state) {
+    public Game(Integer id, Player xPlayer, Player oPlayer, GameState state) {
         this.id = id;
-        this.board = board;
         this.xPlayer = xPlayer;
         this.oPlayer = oPlayer;
         this.state = state;
     }
 
-    public Game(char[] board, Player xPlayer, Player oPlayer, GameState state) {
-        this.board = board;
+    public Game(Player xPlayer, Player oPlayer, GameState state) {
         this.xPlayer = xPlayer;
         this.oPlayer = oPlayer;
         this.state = state;
@@ -39,10 +37,6 @@ public class Game {
 
     public char[] getBoard() {
         return board;
-    }
-
-    public void setBoard(char[] board) {
-        this.board = board;
     }
 
     public Player getXPlayer() {
