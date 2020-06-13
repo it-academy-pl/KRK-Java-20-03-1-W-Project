@@ -2,6 +2,7 @@ package pl.itacademy.tictactoe.api;
 
 import pl.itacademy.tictactoe.domain.Game;
 
+import java.util.Collection;
 import java.util.Optional;
 
 public interface GameRepository {
@@ -10,4 +11,6 @@ public interface GameRepository {
     Optional<Game> getGameById(Integer id);
 
     Game updateGame(Game game);
+
+    Collection<Game> games();
 }
