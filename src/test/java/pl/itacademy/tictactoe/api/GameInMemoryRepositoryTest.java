@@ -19,7 +19,6 @@ class GameInMemoryRepositoryTest {
     public void setUp() {
         repository = new GameInMemoryRepository();
         game1 = new Game();
-
     }
 
     @Test

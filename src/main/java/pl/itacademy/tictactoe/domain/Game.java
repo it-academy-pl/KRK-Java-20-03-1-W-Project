@@ -18,6 +18,17 @@ public class Game {
         this.state = state;
     }
 
+    public Game(char[] board, Player xPlayer, Player oPlayer, GameState state) {
+        this.board = board;
+        this.xPlayer = xPlayer;
+        this.oPlayer = oPlayer;
+        this.state = state;
+    }
+
+    public Game() {
+
+    }
+
     public Integer getId() {
         return id;
     }
