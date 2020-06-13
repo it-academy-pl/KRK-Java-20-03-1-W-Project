@@ -13,4 +13,6 @@ public interface GameRepository {
     Game updateGame(Game game);
 
     Collection<Game> games();
+
+    Optional<Game> getWaitingGame();
 }

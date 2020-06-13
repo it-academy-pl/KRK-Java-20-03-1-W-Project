@@ -8,10 +8,14 @@ public class GameResponse {
     private final GameState state;
     private final char[] board;
 
-    public GameResponse(int gameId, GameState state, char[] board) {
+    private GameResponse(int gameId, GameState state, char[] board) {
         this.gameId = gameId;
         this.state = state;
         this.board = board;
+    }
+
+    public static GameResponse from(Game game) {
+        return new GameResponse(game.getId(), game.getState(), game.getBoard());
     }
 
     public int getGameId() {

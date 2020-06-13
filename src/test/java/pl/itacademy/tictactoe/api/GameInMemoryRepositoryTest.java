@@ -3,6 +3,7 @@ package pl.itacademy.tictactoe.api;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pl.itacademy.tictactoe.domain.Game;
+import pl.itacademy.tictactoe.domain.GameState;
 import pl.itacademy.tictactoe.exception.GameNotFoundException;
 
 import java.util.Optional;
@@ -19,7 +20,6 @@ class GameInMemoryRepositoryTest {
     public void setUp() {
         repository = new GameInMemoryRepository();
         game1 = new Game();
-
     }
 
     @Test
@@ -53,16 +53,14 @@ class GameInMemoryRepositoryTest {
 
     @Test
     public void updateGame_existingGame_returnOptionalWithValue() {
-        game1.setId(1);
         repository.addGame(game1);
+        Integer id = game1.getId();
         Game updated = new Game();
-        updated.setId(1);
-        char[] board = new char[]{'X', 'X', 'X', 'O', 'X', 'X', 'X', 'X', 'O'};
-        updated.setBoard(board);
+        updated.setId(id);
+
         repository.updateGame(updated);
         assertThat(repository.updateGame(updated)).isEqualTo(updated);
-        assertThat(repository.games()).doesNotContain(game1);
-        assertThat(repository.games().contains(updated));
+        assertThat(repository.games()).contains(updated);
     }
 
     @Test
@@ -71,13 +69,22 @@ class GameInMemoryRepositoryTest {
         repository.addGame(game1);
         Game updated = new Game();
         updated.setId(2);
-        char[] board = new char[]{'X', 'X', 'X', 'O', 'X', 'X', 'X', 'X', 'O'};
-        updated.setBoard(board);
+
         GameNotFoundException exception = assertThrows(GameNotFoundException.class, () -> repository.updateGame(updated));
         assertThat(exception.getMessage()).contains("2");
 
         assertThat(repository.games()).contains(game1);
         assertThat(repository.games()).doesNotContain(updated);
+    }
+
+    @Test
+    public void getWaitingGame_returnsWaitingGame() {
+        Game game = new Game();
+        game.setState(GameState.WAITING_FOR_REGISTRATION);
+        repository.addGame(game);
+
+        Game waitingGame = repository.getWaitingGame().orElseThrow();
+        assertThat(waitingGame).isSameAs(game);
     }
 
 }
