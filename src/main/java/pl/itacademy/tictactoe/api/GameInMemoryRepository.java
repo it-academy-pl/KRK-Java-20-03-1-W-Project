@@ -1,6 +1,7 @@
 package pl.itacademy.tictactoe.api;
 
 import pl.itacademy.tictactoe.domain.Game;
+import pl.itacademy.tictactoe.domain.GameState;
 import pl.itacademy.tictactoe.exception.GameNotFoundException;
 
 import java.util.Collection;
@@ -40,5 +41,12 @@ public class GameInMemoryRepository implements GameRepository {
     @Override
     public Collection<Game> games() {
         return games.values();
+    }
+
+    @Override
+    public Optional<Game> getWaitingGame() {
+        return games.values().stream()
+                .filter(game -> game.getState() == GameState.WAITING_FOR_REGISTRATION)
+                .findFirst();
     }
 }

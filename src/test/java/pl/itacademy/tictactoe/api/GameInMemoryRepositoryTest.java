@@ -3,6 +3,7 @@ package pl.itacademy.tictactoe.api;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pl.itacademy.tictactoe.domain.Game;
+import pl.itacademy.tictactoe.domain.GameState;
 import pl.itacademy.tictactoe.exception.GameNotFoundException;
 
 import java.util.Optional;
@@ -52,15 +53,14 @@ class GameInMemoryRepositoryTest {
 
     @Test
     public void updateGame_existingGame_returnOptionalWithValue() {
-        game1.setId(1);
         repository.addGame(game1);
+        Integer id = game1.getId();
         Game updated = new Game();
-        updated.setId(1);
+        updated.setId(id);
 
         repository.updateGame(updated);
         assertThat(repository.updateGame(updated)).isEqualTo(updated);
-        assertThat(repository.games()).doesNotContain(game1);
-        assertThat(repository.games().contains(updated));
+        assertThat(repository.games()).contains(updated);
     }
 
     @Test
@@ -75,6 +75,16 @@ class GameInMemoryRepositoryTest {
 
         assertThat(repository.games()).contains(game1);
         assertThat(repository.games()).doesNotContain(updated);
+    }
+
+    @Test
+    public void getWaitingGame_returnsWaitingGame() {
+        Game game = new Game();
+        game.setState(GameState.WAITING_FOR_REGISTRATION);
+        repository.addGame(game);
+
+        Game waitingGame = repository.getWaitingGame().orElseThrow();
+        assertThat(waitingGame).isSameAs(game);
     }
 
 }
