@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class Game {
-    private int id;
+    private Integer id;
     private char[] board;
     private Player xPlayer;
     private Player oPlayer;

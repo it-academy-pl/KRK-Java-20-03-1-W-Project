@@ -10,7 +10,7 @@ public interface GameRepository {
 
     Optional<Game> getGameById(Integer id);
 
-    Optional<Game> updateGame(Game game);
+    Game updateGame(Game game);
 
     Collection<Game> games();
 }

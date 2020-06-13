@@ -2,11 +2,13 @@ package pl.itacademy.tictactoe.api;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import pl.itacademy.tictactoe.domain.*;
+import pl.itacademy.tictactoe.domain.Game;
+import pl.itacademy.tictactoe.exception.GameNotFoundException;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class GameInMemoryRepositoryTest {
 
@@ -23,6 +25,7 @@ class GameInMemoryRepositoryTest {
     @Test
     public void addGame_newGame_returnsNewGame() {
         assertThat(repository.addGame(game1)).isEqualTo(game1);
+        assertThat(game1.getId()).isNotNull();
     }
 
     @Test
@@ -57,21 +60,22 @@ class GameInMemoryRepositoryTest {
         char[] board = new char[]{'X', 'X', 'X', 'O', 'X', 'X', 'X', 'X', 'O'};
         updated.setBoard(board);
         repository.updateGame(updated);
-        assertThat(repository.updateGame(updated).get()).isEqualTo(updated);
+        assertThat(repository.updateGame(updated)).isEqualTo(updated);
         assertThat(repository.games()).doesNotContain(game1);
         assertThat(repository.games().contains(updated));
     }
 
     @Test
-    public void updateGame_nonExistingGame_returnsNull() {
+    public void updateGame_nonExistingGame_throwGameNotFoundException() {
         game1.setId(1);
         repository.addGame(game1);
         Game updated = new Game();
         updated.setId(2);
         char[] board = new char[]{'X', 'X', 'X', 'O', 'X', 'X', 'X', 'X', 'O'};
         updated.setBoard(board);
-        repository.updateGame(updated);
-        assertThat(repository.updateGame(updated)).isEmpty();
+        GameNotFoundException exception = assertThrows(GameNotFoundException.class, () -> repository.updateGame(updated));
+        assertThat(exception.getMessage()).contains("2");
+
         assertThat(repository.games()).contains(game1);
         assertThat(repository.games()).doesNotContain(updated);
     }
