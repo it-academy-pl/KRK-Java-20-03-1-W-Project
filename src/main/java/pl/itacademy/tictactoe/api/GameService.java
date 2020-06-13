@@ -2,6 +2,8 @@ package pl.itacademy.tictactoe.api;
 
 import pl.itacademy.tictactoe.domain.*;
 
+import java.util.Optional;
+
 public class GameService implements GameInterface {
     private final GameRepository repository;
 
@@ -11,10 +13,19 @@ public class GameService implements GameInterface {
 
     @Override
     public GameResponse registerPlayer(Player player) {
-        Game game = new Game();
-        game.setXPlayer(player);
-        repository.addGame(game);
-        return new GameResponse(game.getId(), GameState.WAITING_FOR_REGISTRATION, game.getBoard());
+        Optional<Game> waitingGame = repository.getWaitingGame();
+        Game game;
+        if (waitingGame.isEmpty()) {
+            game = new Game();
+            game.setXPlayer(player);
+            game.setState(GameState.WAITING_FOR_REGISTRATION);
+            repository.addGame(game);
+        } else {
+            game = waitingGame.get();
+            game.setOPlayer(player);
+            game.setState(GameState.X_MOVE);
+        }
+        return GameResponse.from(game);
     }
 
     @Override

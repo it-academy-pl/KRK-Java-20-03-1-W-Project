@@ -11,7 +11,6 @@ import static pl.itacademy.tictactoe.domain.GameState.WAITING_FOR_REGISTRATION;
 import static pl.itacademy.tictactoe.domain.GameState.X_MOVE;
 
 class GameServiceTest {
-
     private GameService gameService;
     private GameRepository gameRepository;
 
@@ -25,12 +24,11 @@ class GameServiceTest {
     public void registerPlayer_noWaitingGames_createsNewGame_and_registerPlayerToIt() {
         Player firstPlayer = new Player("Jan", "kow@lsk!");
         GameResponse gameResponse = gameService.registerPlayer(firstPlayer);
-
         assertThat(gameResponse.getState()).isEqualTo(WAITING_FOR_REGISTRATION);
-
         int gameId = gameResponse.getGameId();
         Game game = gameRepository.getGameById(gameId).orElseThrow();
         assertThat(game.getXPlayer()).isEqualTo(firstPlayer);
+        assertThat(game.getState()).isEqualTo(WAITING_FOR_REGISTRATION);
     }
 
     @Test
@@ -40,14 +38,10 @@ class GameServiceTest {
         game.setXPlayer(firstPlayer);
         game.setState(WAITING_FOR_REGISTRATION);
         gameRepository.addGame(game);
-
         Player secondPlayer = new Player("Daryna", "Qwer1234");
-
         GameResponse gameResponse = gameService.registerPlayer(secondPlayer);
-
         assertThat(gameResponse.getState()).isEqualTo(X_MOVE);
-
-
+        Game actual = gameRepository.getGameById(game.getId()).orElseThrow();
+        assertThat(actual.getState()).isEqualTo(X_MOVE);
     }
-
 }
