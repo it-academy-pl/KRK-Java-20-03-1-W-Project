@@ -126,7 +126,7 @@ class GameServiceTest {
     }
 
     @Test //extra test for move by a third player
-    public void makeMove_moveByThirdPlayer_throwsIllegalMoveException() {
+    public void makeMove_moveByThirdPlayer_throwsPlayerNotFoundException() {
         Player firstPlayer = new Player("Oleg", "kow@lsk!1");
         Player secondPlayer = new Player("Daryna", "Qwer1234");
         Game game = new Game();
@@ -137,7 +137,7 @@ class GameServiceTest {
 
         Player thirdPlayer = new Player("Artek", "12345678");
         Move move = new Move(game.getId(), 0, thirdPlayer);
-        IllegalMoveException exception = assertThrows(IllegalMoveException.class, () -> gameService.makeMove(move));
+        PlayerNotFoundException exception = assertThrows(PlayerNotFoundException.class, () -> gameService.makeMove(move));
         assertThat(exception.getMessage()).contains(thirdPlayer.getName());
     }
 
