@@ -47,7 +47,7 @@ public class GameService implements GameInterface {
 
         char moveMadeBy;
         boolean validPassword;
-        boolean validMove;
+        boolean validMove = false;
         GameState nextGameState;
 
         if (game.getXPlayer().getName().equals(move.getPlayer().getName())) {
@@ -83,6 +83,39 @@ public class GameService implements GameInterface {
         }
 
         game.getBoard()[move.getCellIndex()] = moveMadeBy;
+        char[] board = game.getBoard();
+
+        boolean draw = true;
+        boolean won = false;
+        int i = 0;
+        do {
+            draw = (board[i] == 'X' || board[i] == 'O');
+            i++;
+        } while (draw && i < 9);
+
+        if (draw) {
+            nextGameState = DRAW;
+        } else {
+            won = (board[0] == moveMadeBy && board[1] == moveMadeBy && board[2] == moveMadeBy) ||
+                    (board[3] == moveMadeBy && board[4] == moveMadeBy && board[5] == moveMadeBy) ||
+                    (board[6] == moveMadeBy && board[7] == moveMadeBy && board[8] == moveMadeBy) ||
+
+                    (board[0] == moveMadeBy && board[3] == moveMadeBy && board[6] == moveMadeBy) ||
+                    (board[1] == moveMadeBy && board[4] == moveMadeBy && board[7] == moveMadeBy) ||
+                    (board[2] == moveMadeBy && board[5] == moveMadeBy && board[8] == moveMadeBy) ||
+
+                    (board[0] == moveMadeBy && board[4] == moveMadeBy && board[8] == moveMadeBy) ||
+                    (board[6] == moveMadeBy && board[4] == moveMadeBy && board[2] == moveMadeBy);
+
+            if (won && moveMadeBy == 'X') {
+                nextGameState = X_WON;
+            }
+
+            if (won && moveMadeBy == 'O') {
+                nextGameState = O_WON;
+            }
+        }
+
         game.setState(nextGameState);
         return GameResponse.from(game);
     }

@@ -156,20 +156,84 @@ class GameServiceTest {
     }
 
 
-//    @Test
-//    public void makeXMove_playerWon_changesGameStateToX_WON() {
-//
-//    }
-//
-//    @Test
-//    public void makeOMove_playerWon_changesGameStateToO_WON() {
-//
-//    }
-//
-//    @Test
-//    public void makeMove_gameDrawAfterMove_changesGameStateToDRAW() {
-//
-//    }
+    @Test
+    public void makeXMove_playerWon_changesGameStateToX_WON() {
+        Player firstPlayer = new Player("Oleg", "kow@lsk!1");
+        Player secondPlayer = new Player("Daryna", "Qwer1234");
+        Game game = new Game();
+        game.setXPlayer(firstPlayer);
+        game.setOPlayer(secondPlayer);
+        game.setState(X_MOVE);
+        gameRepository.addGame(game);
+
+        Move move0 = new Move(game.getId(), 0, firstPlayer);
+        gameService.makeMove(move0);
+        Move move1 = new Move(game.getId(), 3, secondPlayer);
+        gameService.makeMove(move1);
+        Move move2 = new Move(game.getId(), 1, firstPlayer);
+        gameService.makeMove(move2);
+        Move move3 = new Move(game.getId(), 4, secondPlayer);
+        gameService.makeMove(move3);
+        Move move4 = new Move(game.getId(), 2, firstPlayer);
+        assertThat(gameService.makeMove(move4).getState()).isEqualTo(X_WON);
+    }
+
+    @Test
+    public void makeOMove_playerWon_changesGameStateToO_WON() {
+
+        Player firstPlayer = new Player("Oleg", "kow@lsk!1");
+        Player secondPlayer = new Player("Daryna", "Qwer1234");
+        Game game = new Game();
+        game.setXPlayer(firstPlayer);
+        game.setOPlayer(secondPlayer);
+        game.setState(X_MOVE);
+        gameRepository.addGame(game);
+
+        Move move0 = new Move(game.getId(), 0, firstPlayer);
+        gameService.makeMove(move0);
+        Move move1 = new Move(game.getId(), 3, secondPlayer);
+        gameService.makeMove(move1);
+        Move move2 = new Move(game.getId(), 1, firstPlayer);
+        gameService.makeMove(move2);
+        Move move3 = new Move(game.getId(), 4, secondPlayer);
+        gameService.makeMove(move3);
+        Move move4 = new Move(game.getId(), 8, firstPlayer);
+        gameService.makeMove(move4);
+        Move move5 = new Move(game.getId(), 5, secondPlayer);
+        assertThat(gameService.makeMove(move5).getState()).isEqualTo(O_WON);
+
+    }
+
+    @Test
+    public void makeMove_gameDrawAfterMove_changesGameStateToDRAW() {
+
+        Player firstPlayer = new Player("Oleg", "kow@lsk!1");
+        Player secondPlayer = new Player("Daryna", "Qwer1234");
+        Game game = new Game();
+        game.setXPlayer(firstPlayer);
+        game.setOPlayer(secondPlayer);
+        game.setState(X_MOVE);
+        gameRepository.addGame(game);
+
+        Move move0 = new Move(game.getId(), 0, firstPlayer);
+        gameService.makeMove(move0);
+        Move move1 = new Move(game.getId(), 1, secondPlayer);
+        gameService.makeMove(move1);
+        Move move2 = new Move(game.getId(), 3, firstPlayer);
+        gameService.makeMove(move2);
+        Move move3 = new Move(game.getId(), 6, secondPlayer);
+        gameService.makeMove(move3);
+        Move move4 = new Move(game.getId(), 4, firstPlayer);
+        gameService.makeMove(move4);
+        Move move5 = new Move(game.getId(), 5, secondPlayer);
+        gameService.makeMove(move5);
+        Move move6 = new Move(game.getId(), 2, firstPlayer);
+        gameService.makeMove(move6);
+        Move move7 = new Move(game.getId(), 7, secondPlayer);
+        gameService.makeMove(move7);
+        Move move8 = new Move(game.getId(), 8, firstPlayer);
+        assertThat(gameService.makeMove(move8).getState()).isEqualTo(DRAW);
+    }
 
     @Test
     public void getGameState_returnsGameResponse() {
