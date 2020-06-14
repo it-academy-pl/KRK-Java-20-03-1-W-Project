@@ -40,7 +40,7 @@ public class GameService implements GameInterface {
                 .orElseThrow(() -> new GameNotFoundException("Game [" + move.getGameId() + "] not found"));
 
         char cellValue = game.getBoard()[move.getCellIndex()];
-        if (cellValue > 0) {
+        if (cellValue == 'X' || cellValue == 'O') {
             throw new IllegalMoveException("Board cell " + move.getCellIndex() +
                     " already contains value " + cellValue + ".");
         }
@@ -118,6 +118,39 @@ public class GameService implements GameInterface {
 
         game.setState(nextGameState);
         return GameResponse.from(game);
+    }
+
+    private GameState getNextGameState(char[] board, char moveMadeBy) {
+        GameState nextGameState = DRAW;
+        boolean draw = true;
+        boolean won = false;
+        int i = 0;
+        do {
+            draw = (board[i] == 'X' || board[i] == 'O');
+            i++;
+        } while (draw && i < 9);
+
+        if (!draw) {
+            won = (board[0] == moveMadeBy && board[1] == moveMadeBy && board[2] == moveMadeBy) ||
+                    (board[3] == moveMadeBy && board[4] == moveMadeBy && board[5] == moveMadeBy) ||
+                    (board[6] == moveMadeBy && board[7] == moveMadeBy && board[8] == moveMadeBy) ||
+
+                    (board[0] == moveMadeBy && board[3] == moveMadeBy && board[6] == moveMadeBy) ||
+                    (board[1] == moveMadeBy && board[4] == moveMadeBy && board[7] == moveMadeBy) ||
+                    (board[2] == moveMadeBy && board[5] == moveMadeBy && board[8] == moveMadeBy) ||
+
+                    (board[0] == moveMadeBy && board[4] == moveMadeBy && board[8] == moveMadeBy) ||
+                    (board[6] == moveMadeBy && board[4] == moveMadeBy && board[2] == moveMadeBy);
+
+            if (moveMadeBy == 'X') {
+                nextGameState = won ? X_WON : O_MOVE;
+            }
+
+            if (moveMadeBy == 'O') {
+                nextGameState = won ? O_WON : X_MOVE;
+            }
+        }
+        return nextGameState;
     }
 
     @Override
