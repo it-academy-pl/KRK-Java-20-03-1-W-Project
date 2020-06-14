@@ -58,7 +58,7 @@ public class GameService implements GameInterface {
         } else if (game.getOPlayer().getName().equals(move.getPlayer().getName())) {
             moveMadeBy = 'O';
             validMove = game.getState() == O_MOVE;
-            validPassword = game.getXPlayer().getPassword().equals(move.getPlayer().getPassword());
+            validPassword = game.getOPlayer().getPassword().equals(move.getPlayer().getPassword());
             nextGameState = X_MOVE;
         } else {
             throw new IllegalMoveException("Game [" + move.getGameId() + "] cannot be played by player "
@@ -84,7 +84,6 @@ public class GameService implements GameInterface {
 
         game.getBoard()[move.getCellIndex()] = moveMadeBy;
         game.setState(nextGameState);
-
         return GameResponse.from(game);
     }
 
