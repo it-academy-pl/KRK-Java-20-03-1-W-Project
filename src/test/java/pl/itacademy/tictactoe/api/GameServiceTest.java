@@ -2,11 +2,11 @@ package pl.itacademy.tictactoe.api;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import pl.itacademy.tictactoe.domain.Game;
-import pl.itacademy.tictactoe.domain.GameResponse;
-import pl.itacademy.tictactoe.domain.Move;
-import pl.itacademy.tictactoe.domain.Player;
+import pl.itacademy.tictactoe.domain.*;
 import pl.itacademy.tictactoe.exception.GameNotFoundException;
+import pl.itacademy.tictactoe.exception.IllegalMoveException;
+import pl.itacademy.tictactoe.exception.InvalidPasswordException;
+import pl.itacademy.tictactoe.exception.PlayerNotFoundException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -75,23 +75,86 @@ class GameServiceTest {
 
     @Test
     public void makeMove_cellNotEmpty_throwsIllegalMoveException() {
+        Player firstPlayer = new Player("Oleg", "kow@lsk!1");
+        Player secondPlayer = new Player("Daryna", "Qwer1234");
+        Game game = new Game();
+        game.setXPlayer(firstPlayer);
+        game.setOPlayer(secondPlayer);
+        game.setState(X_MOVE);
+        gameRepository.addGame(game);
 
+        Move firstMove = new Move(game.getId(), 0, firstPlayer);
+        gameService.makeMove(firstMove);
+        Move secondMove = new Move(game.getId(), 0, secondPlayer);
+
+        IllegalMoveException exception = assertThrows(IllegalMoveException.class, () -> gameService.makeMove(secondMove));
+
+        assertThat(exception.getMessage()).contains("0");
     }
 
     @Test
     public void makeMove_gameAlreadyFinished_throwsIllegalMoveException() {
+        Player firstPlayer = new Player("Oleg", "kow@lsk!1");
+        Player secondPlayer = new Player("Daryna", "Qwer1234");
+        Game game = new Game();
+        game.setXPlayer(firstPlayer);
+        game.setOPlayer(secondPlayer);
+        game.setState(X_WON);
+        gameRepository.addGame(game);
 
+        Move move = new Move(game.getId(), 0, firstPlayer);
+        IllegalMoveException exception = assertThrows(IllegalMoveException.class, () -> gameService.makeMove(move));
+
+        assertThat(exception.getMessage()).contains("X_WON");
     }
 
     @Test
     public void makeXMove_gameExpectsOMove_throwsIllegalMoveException() {
+        Player firstPlayer = new Player("Oleg", "kow@lsk!1");
+        Player secondPlayer = new Player("Daryna", "Qwer1234");
+        Game game = new Game();
+        game.setXPlayer(firstPlayer);
+        game.setOPlayer(secondPlayer);
+        game.setState(O_MOVE);
+        gameRepository.addGame(game);
 
+        Move move = new Move(game.getId(), 0, firstPlayer);
+        IllegalMoveException exception = assertThrows(IllegalMoveException.class, () -> gameService.makeMove(move));
+
+        assertThat(exception.getMessage()).contains("player X");
+        assertThat(exception.getMessage()).contains(O_MOVE.toString());
+    }
+
+    @Test //extra test for move by a third player
+    public void makeMove_moveByThirdPlayer_throwsIllegalMoveException() {
+        Player firstPlayer = new Player("Oleg", "kow@lsk!1");
+        Player secondPlayer = new Player("Daryna", "Qwer1234");
+        Game game = new Game();
+        game.setXPlayer(firstPlayer);
+        game.setOPlayer(secondPlayer);
+        game.setState(X_MOVE);
+        gameRepository.addGame(game);
+
+        Player thirdPlayer = new Player("Artek", "12345678");
+        Move move = new Move(game.getId(), 0, thirdPlayer);
+        IllegalMoveException exception = assertThrows(IllegalMoveException.class, () -> gameService.makeMove(move));
+        assertThat(exception.getMessage()).contains(thirdPlayer.getName());
     }
 
     @Test
     public void makeMove_wrongPassword_throwsWrongPasswordException() {
+        Player firstPlayer = new Player("Oleg", "kow@lsk!1");
+        Game game = new Game();
+        game.setXPlayer(firstPlayer);
+        game.setState(X_MOVE);
+        gameRepository.addGame(game);
 
+        Player wrongPasswordUser = new Player("Oleg", "12345678");
+        Move move = new Move(game.getId(), 0, wrongPasswordUser);
+        InvalidPasswordException exception = assertThrows(InvalidPasswordException.class, () -> gameService.makeMove(move));
+        assertThat(exception.getMessage()).contains(firstPlayer.getName());
     }
+
 
 //    @Test
 //    public void makeXMove_playerWon_changesGameStateToX_WON() {
@@ -109,32 +172,99 @@ class GameServiceTest {
 //    }
 
     @Test
-    public void getGameState_returnsGameState() {
+    public void getGameState_returnsGameResponse() {
+        Player firstPlayer = new Player("Oleg", "kow@lsk!1");
+        Game game = new Game();
+        game.setXPlayer(firstPlayer);
+        game.setState(X_MOVE);
+        gameRepository.addGame(game);
 
+        assertThat(gameService.getGameState(game.getId())).isEqualTo(GameResponse.from(game));
     }
 
     @Test
     public void getGameState_nonExistingGameId_throwsGameNotFoundException() {
+        Player firstPlayer = new Player("Oleg", "kow@lsk!1");
+        Game game = new Game();
+        game.setXPlayer(firstPlayer);
+        game.setState(X_MOVE);
+        gameRepository.addGame(game);
 
+        GameNotFoundException exception = assertThrows(GameNotFoundException.class, () -> gameService.getGameState(2));
+        assertThat(exception.getMessage()).contains("2");
     }
 
     @Test
     public void gameStatistic_playerHasGames_returnPlayerStatistic() {
+        Player firstPlayer = new Player("Oleg", "kow@lsk!1");
+        Player secondPlayer = new Player("Daryna", "Qwer1234");
+        Game game1 = new Game();
+        game1.setXPlayer(firstPlayer);
+        game1.setOPlayer(secondPlayer);
+        game1.setState(X_WON);
+        gameRepository.addGame(game1);
 
+        Game game2 = new Game();
+        game2.setXPlayer(firstPlayer);
+        game2.setOPlayer(secondPlayer);
+        game2.setState(O_WON);
+        gameRepository.addGame(game2);
+
+        Game game3 = new Game();
+        game3.setXPlayer(firstPlayer);
+        game3.setOPlayer(secondPlayer);
+        game3.setState(DRAW);
+        gameRepository.addGame(game3);
+
+        assertThat(gameService.getGameStatistic(firstPlayer))
+                .isEqualTo(new GameStatistics(1, 1, 1));
+
+        assertThat(gameService.getGameStatistic(secondPlayer))
+                .isEqualTo(new GameStatistics(1, 1, 1));
     }
 
     @Test
     public void gameStatistic_playerHasNoGames_throwsPlayerNotFoundException() {
+        Player firstPlayer = new Player("Oleg", "kow@lsk!1");
+        Player secondPlayer = new Player("Daryna", "Qwer1234");
+        Game game1 = new Game();
+        game1.setXPlayer(firstPlayer);
+        game1.setOPlayer(secondPlayer);
+        game1.setState(X_WON);
+        gameRepository.addGame(game1);
 
+        Player thirdPlayer = new Player("Artek", "password");
+        PlayerNotFoundException exception = assertThrows(PlayerNotFoundException.class, () -> gameService.getGameStatistic(thirdPlayer));
+
+        assertThat(exception.getMessage()).contains(thirdPlayer.getName());
     }
 
     @Test
     public void playAgain_gameIdNotExists_throwsGameNotFoundException() {
+        Player firstPlayer = new Player("Oleg", "kow@lsk!1");
+        Player secondPlayer = new Player("Daryna", "Qwer1234");
+        Game game = new Game();
+        game.setXPlayer(firstPlayer);
+        game.setOPlayer(secondPlayer);
+        game.setState(X_WON);
+        gameRepository.addGame(game);
 
+        GameNotFoundException exception = assertThrows(GameNotFoundException.class, () -> gameService.playAgain(2));
+        assertThat(exception.getMessage()).contains("2");
     }
 
     @Test
     public void playAgain_createsNewGameWithTheSamePlayers_and_stateX_MOVE() {
-
+        Player firstPlayer = new Player("Oleg", "kow@lsk!1");
+        Player secondPlayer = new Player("Daryna", "Qwer1234");
+        Game game = new Game();
+        game.setXPlayer(firstPlayer);
+        game.setOPlayer(secondPlayer);
+        game.setState(X_WON);
+        gameRepository.addGame(game);
+        GameResponse gameResponse = gameService.playAgain(game.getId());
+        assertThat(gameRepository.getGameById(gameResponse.getGameId()).get().getXPlayer()).isEqualTo(secondPlayer);
+        assertThat(gameRepository.getGameById(gameResponse.getGameId()).get().getXPlayer()).isEqualTo(secondPlayer);
+        assertThat(gameResponse.getState()).isEqualTo(X_MOVE);
     }
 }
