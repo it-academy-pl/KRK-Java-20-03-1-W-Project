@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import pl.itacademy.tictactoe.domain.GameResponse;
+import pl.itacademy.tictactoe.domain.Move;
 import pl.itacademy.tictactoe.domain.Player;
 
 @Controller
@@ -25,4 +26,10 @@ public class GameController {
     public ResponseEntity<GameResponse> registerPlayer(@RequestBody Player player) {
         return ResponseEntity.ok(gameInterface.registerPlayer(player));
     }
+
+    @PostMapping
+    public ResponseEntity<GameResponse> makeMove(@RequestBody Move move) {
+        return ResponseEntity.ok(gameInterface.makeMove(move));
+    }
+
 }

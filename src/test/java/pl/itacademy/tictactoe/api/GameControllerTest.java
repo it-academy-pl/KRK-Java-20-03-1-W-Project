@@ -81,4 +81,23 @@ class GameControllerTest {
         assertThat(exception.getMessage()).contains("Game [0] not found");
     }
 
+    @Test
+    public void makeMove_playerProvideWrongPassword_returnsBadRequestResponse(){
+
+        Player xPlayer = new Player("x", "pass");
+        Player oPlayer = new Player("o", "pass");
+        Game game = gameRepository.addGame(new Game(xPlayer, oPlayer, GameState.X_MOVE));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json");
+        Move move = new Move(game.getId(),0,new Player("x","123"));
+        HttpEntity<Move> request = new HttpEntity<Move>(move, headers);
+
+        HttpClientErrorException exception = assertThrows(HttpClientErrorException.class, () ->  restTemplate.postForEntity(uriPrefix, request, GameResponse.class));
+
+        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(exception.getMessage()).contains("Player x provided invalid password");
+
+    }
+
 }
