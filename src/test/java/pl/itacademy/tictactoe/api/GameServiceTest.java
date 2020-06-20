@@ -328,7 +328,7 @@ class GameServiceTest {
         gameRepository.addGame(game);
         GameResponse gameResponse = gameService.playAgain(game.getId());
         assertThat(gameRepository.getGameById(gameResponse.getGameId()).get().getXPlayer()).isEqualTo(secondPlayer);
-        assertThat(gameRepository.getGameById(gameResponse.getGameId()).get().getXPlayer()).isEqualTo(secondPlayer);
+        assertThat(gameRepository.getGameById(gameResponse.getGameId()).get().getOPlayer()).isEqualTo(firstPlayer);
         assertThat(gameResponse.getState()).isEqualTo(X_MOVE);
     }
 }

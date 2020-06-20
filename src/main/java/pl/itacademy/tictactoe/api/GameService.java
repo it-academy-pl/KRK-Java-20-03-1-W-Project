@@ -39,12 +39,12 @@ public class GameService implements GameInterface {
         Game game = repository.getGameById(move.getGameId())
                 .orElseThrow(() -> new GameNotFoundException("Game [" + move.getGameId() + "] not found"));
 
-        checkCellIndex(move.getCellIndex(), game);
+        assertCellIsEmpty(move.getCellIndex(), game);
 
         checkPlayer(move.getPlayer(), game);
 
         char moveChar = getMoveChar(move.getPlayer(), game);
-        checkMove(moveChar, game);
+        assertMoveIsLegal(moveChar, game);
 
         game.getBoard()[move.getCellIndex()] = moveChar;
         GameState gameStateAfterMove = getGameStateAfterMove(moveChar, game);
@@ -52,7 +52,7 @@ public class GameService implements GameInterface {
         return GameResponse.from(game);
     }
 
-    private void checkCellIndex(int cellIndex, Game game) {
+    private void assertCellIsEmpty(int cellIndex, Game game) {
         char cellValue = game.getBoard()[cellIndex];
         if (cellValue == 'X' || cellValue == 'O') {
             throw new IllegalMoveException("Board cell " + cellIndex +
@@ -79,7 +79,7 @@ public class GameService implements GameInterface {
         }
     }
 
-    private void checkMove(char moveChar, Game game) {
+    private void assertMoveIsLegal(char moveChar, Game game) {
         boolean validMove = false;
         if (moveChar == 'X') {
             validMove = game.getState() == X_MOVE;
