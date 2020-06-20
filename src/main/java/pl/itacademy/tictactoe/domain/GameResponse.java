@@ -4,9 +4,12 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class GameResponse {
-    private final int gameId;
-    private final GameState state;
-    private final char[] board;
+    private int gameId;
+    private GameState state;
+    private char[] board;
+
+    public GameResponse() {
+    }
 
     private GameResponse(int gameId, GameState state, char[] board) {
         this.gameId = gameId;

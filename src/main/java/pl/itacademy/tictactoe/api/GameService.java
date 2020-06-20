@@ -80,27 +80,17 @@ public class GameService implements GameInterface {
     }
 
     private void assertMoveIsLegal(char moveChar, Game game) {
-        boolean validMove = false;
-        if (moveChar == 'X') {
-            validMove = game.getState() == X_MOVE;
-        } else if (moveChar == 'O') {
-            validMove = game.getState() == O_MOVE;
+        GameState gameState = game.getState();
+        if (gameState == WAITING_FOR_REGISTRATION) {
+            throw new IllegalMoveException("Game [" + game.getId() + "] is not started yet");
         }
+        Character expectedMoveChar = gameState.getMoveChar()
+                .orElseThrow(() -> new IllegalMoveException("Game [" + game.getId() + "] already finished with " + gameState));
 
-        switch (game.getState()) {
-            case X_WON:
-            case O_WON:
-            case DRAW:
-                throw new IllegalMoveException("Game [" + game.getId() + "] already finished with " + game.getState());
-            case X_MOVE:
-            case O_MOVE:
-                if (!validMove) {
-                    throw new IllegalMoveException("Move made by player " + moveChar +
-                            " but " + game.getState() + " expected.");
-                }
-            case WAITING_FOR_REGISTRATION:
+        if (!expectedMoveChar.equals(moveChar)) {
+            throw new IllegalMoveException("Move made by player " + moveChar +
+                    " but " + gameState + " expected.");
         }
-
     }
 
     private char getMoveChar(Player player, Game game) {
@@ -120,8 +110,8 @@ public class GameService implements GameInterface {
     private GameState getGameStateAfterMove(char moveChar, Game game) {
         char[] board = game.getBoard();
         GameState nextGameState = DRAW;
-        boolean draw = true;
-        boolean won = false;
+        boolean draw;
+        boolean won;
         int i = 0;
         do {
             draw = (board[i] == 'X' || board[i] == 'O');
