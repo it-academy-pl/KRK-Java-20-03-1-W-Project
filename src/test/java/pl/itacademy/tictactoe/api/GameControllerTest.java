@@ -82,7 +82,7 @@ class GameControllerTest {
     }
 
     @Test
-    public void makeMove_playerProvideWrongPassword_returnsBadRequestResponse(){
+    public void makeMove_playerProvideWrongPassword_returnsBadRequestResponse() {
 
         Player xPlayer = new Player("x", "pass");
         Player oPlayer = new Player("o", "pass");
@@ -90,13 +90,48 @@ class GameControllerTest {
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");
-        Move move = new Move(game.getId(),0,new Player("x","123"));
-        HttpEntity<Move> request = new HttpEntity<Move>(move, headers);
+        Move move = new Move(game.getId(), 0, new Player("x", "123"));
+        HttpEntity<Move> request = new HttpEntity<>(move, headers);
 
-        HttpClientErrorException exception = assertThrows(HttpClientErrorException.class, () ->  restTemplate.postForEntity(uriPrefix, request, GameResponse.class));
+        HttpClientErrorException exception = assertThrows(HttpClientErrorException.class, () -> restTemplate.postForEntity(uriPrefix, request, GameResponse.class));
 
         assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(exception.getMessage()).contains("Player x provided invalid password");
+
+    }
+
+    @Test
+    public void makeMove_properMove_returnsGameResponseWithPerformedMove() {
+
+    }
+
+    @Test
+    public void makeMove_illegalMove_returnsBadRequestResponse() {
+
+    }
+
+    @Test
+    public void makeMove_wrongPlayer_returnsNotFoundResponse() {
+
+    }
+
+    @Test
+    public void playAgain_gameNotFound_returnsNotFoundResponse() {
+
+    }
+
+    @Test
+    public void playAgain_gameFound_returnsGameResponseWithNewGame() {
+
+    }
+
+    @Test
+    public void getGameStatistic_playerNotFound_returnsNotFoundResponse() {
+
+    }
+
+    @Test
+    public void getGameStatistic_playerFound_returnsPlayerStatistic() {
 
     }
 
