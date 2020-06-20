@@ -2,7 +2,10 @@ package pl.itacademy.tictactoe.api;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import pl.itacademy.tictactoe.domain.*;
+import pl.itacademy.tictactoe.domain.Game;
+import pl.itacademy.tictactoe.domain.GameResponse;
+import pl.itacademy.tictactoe.domain.Move;
+import pl.itacademy.tictactoe.domain.Player;
 import pl.itacademy.tictactoe.exception.GameNotFoundException;
 import pl.itacademy.tictactoe.exception.IllegalMoveException;
 
@@ -100,7 +103,7 @@ class GameServiceTest {
         gameRepository.addGame(game);
         Move move = new Move(game.getId(), 0, firstPlayer);
         IllegalMoveException exception = assertThrows(IllegalMoveException.class, () -> gameService.makeMove(move));
-        assertThat(exception.getMessage()).contains("0");
+        assertThat(exception.getMessage()).contains("game is already finished");
 
     }
 
