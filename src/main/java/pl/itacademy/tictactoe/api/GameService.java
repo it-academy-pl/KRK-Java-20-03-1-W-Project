@@ -2,6 +2,7 @@ package pl.itacademy.tictactoe.api;
 
 import pl.itacademy.tictactoe.domain.*;
 import pl.itacademy.tictactoe.exception.GameNotFoundException;
+import pl.itacademy.tictactoe.exception.IllegalMoveException;
 
 import java.util.Optional;
 
@@ -32,15 +33,33 @@ public class GameService implements GameInterface {
     @Override
     public GameResponse makeMove(Move move) {
         Game game = repository.getGameById(move.getGameId()).orElseThrow(() -> new GameNotFoundException("Game [" + move.getGameId() + "] not found"));
+        if(game.getState()==GameState.O_WON||game.getState()==GameState.X_WON||game.getState()==GameState.DRAW){
+            throw new IllegalMoveException("It is not possible to make move on cell ["+move.getCellIndex()+"] because game is already finished");
+        }
+        if((move.getPlayer().equals(game.getXPlayer())&&game.getState()==GameState.O_MOVE)||(move.getPlayer().equals(game.getOPlayer())&&game.getState()==GameState.X_MOVE)){
+            throw new IllegalMoveException("Player ["+move.getPlayer().getName()+"] should wait for his turn");
+        }
+
+
         game.setState(GameState.O_MOVE);
+
+
+
+        if(game.getBoard()[move.getCellIndex()]=='X'||game.getBoard()[move.getCellIndex()]=='O'){
+            throw new IllegalMoveException("It is not possible to make move on cell ["+move.getCellIndex()+"] because it is not empty");
+        }
+
 
         game.getBoard()[move.getCellIndex()] = 'X';
         return GameResponse.from(game);
+
+
     }
 
     @Override
     public GameResponse getGameState(int gameId) {
-        return null;
+        Game game = repository.getGameById(gameId).orElseThrow(() -> new GameNotFoundException("Game [" + gameId + "] not found"));
+        return GameResponse.from(game);
     }
 
     @Override

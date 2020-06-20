@@ -2,13 +2,12 @@ package pl.itacademy.tictactoe.api;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import pl.itacademy.tictactoe.domain.Game;
-import pl.itacademy.tictactoe.domain.GameResponse;
-import pl.itacademy.tictactoe.domain.Move;
-import pl.itacademy.tictactoe.domain.Player;
+import pl.itacademy.tictactoe.domain.*;
 import pl.itacademy.tictactoe.exception.GameNotFoundException;
+import pl.itacademy.tictactoe.exception.IllegalMoveException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static pl.itacademy.tictactoe.domain.GameState.*;
 
@@ -75,16 +74,48 @@ class GameServiceTest {
 
     @Test
     public void makeMove_cellNotEmpty_throwsIllegalMoveException() {
+        Player firstPlayer = new Player("Oleg", "kow@lsk!1");
+        Player secondPlayer = new Player("Daryna", "Qwer1234");
+        Game game = new Game();
+        game.setXPlayer(firstPlayer);
+        game.setOPlayer(secondPlayer);
+        game.setState(X_MOVE);
+        gameRepository.addGame(game);
+        Move move = new Move(game.getId(), 0, firstPlayer);
+        gameService.makeMove(move);
+        IllegalMoveException exception = assertThrows(IllegalMoveException.class, () -> gameService.makeMove(move));
+
+        assertThat(exception.getMessage()).contains("0");
 
     }
 
     @Test
     public void makeMove_gameAlreadyFinished_throwsIllegalMoveException() {
+        Player firstPlayer = new Player("Oleg", "kow@lsk!1");
+        Player secondPlayer = new Player("Daryna", "Qwer1234");
+        Game game = new Game();
+        game.setXPlayer(firstPlayer);
+        game.setOPlayer(secondPlayer);
+        game.setState(X_WON);
+        gameRepository.addGame(game);
+        Move move = new Move(game.getId(), 0, firstPlayer);
+        IllegalMoveException exception = assertThrows(IllegalMoveException.class, () -> gameService.makeMove(move));
+        assertThat(exception.getMessage()).contains("0");
 
     }
 
     @Test
     public void makeXMove_gameExpectsOMove_throwsIllegalMoveException() {
+        Player firstPlayer = new Player("Oleg", "kow@lsk!1");
+        Player secondPlayer = new Player("Daryna", "Qwer1234");
+        Game game = new Game();
+        game.setXPlayer(firstPlayer);
+        game.setOPlayer(secondPlayer);
+        game.setState(O_MOVE);
+        gameRepository.addGame(game);
+        Move move = new Move(game.getId(), 0, firstPlayer);
+        IllegalMoveException exception = assertThrows(IllegalMoveException.class, () -> gameService.makeMove(move));
+        assertThat(exception.getMessage()).contains(move.getPlayer().getName());
 
     }
 
@@ -109,17 +140,38 @@ class GameServiceTest {
 //    }
 
     @Test
-    public void getGameState_returnsGameState() {
+    public void getGameState_returnsGameResponse() {
+        Player firstPlayer = new Player("Oleg", "kow@lsk!1");
+        Player secondPlayer = new Player("Daryna", "Qwer1234");
+        Game game = new Game();
+        game.setXPlayer(firstPlayer);
+        game.setOPlayer(secondPlayer);
+        game.setState(O_MOVE);
+        gameRepository.addGame(game);
+        GameResponse gameResponse = gameService.getGameState(game.getId());
+        assertEquals(gameResponse.getGameId(), game.getId());
+        assertEquals(gameResponse.getState(), game.getState());
+        assertEquals(gameResponse.getBoard(), game.getBoard());
 
     }
-
+//aaaaa
     @Test
     public void getGameState_nonExistingGameId_throwsGameNotFoundException() {
-
+        Player firstPlayer = new Player("Oleg", "kow@lsk!1");
+        Player secondPlayer = new Player("Daryna", "Qwer1234");
+        Game game = new Game();
+        game.setXPlayer(firstPlayer);
+        game.setOPlayer(secondPlayer);
+        game.setState(O_MOVE);
+        gameRepository.addGame(game);
+        GameResponse gameResponse = gameService.getGameState(game.getId());
+        GameNotFoundException exception = assertThrows(GameNotFoundException.class, () -> gameService.getGameState(5));
+        assertThat(exception.getMessage()).contains("5");
     }
 
     @Test
     public void gameStatistic_playerHasGames_returnPlayerStatistic() {
+
 
     }
 
@@ -131,10 +183,12 @@ class GameServiceTest {
     @Test
     public void playAgain_gameIdNotExists_throwsGameNotFoundException() {
 
+
     }
 
     @Test
     public void playAgain_createsNewGameWithTheSamePlayers_and_stateX_MOVE() {
+
 
     }
 }
