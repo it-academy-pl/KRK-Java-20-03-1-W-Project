@@ -10,12 +10,12 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import pl.itacademy.tictactoe.domain.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class GameControllerTest {
@@ -33,6 +33,8 @@ class GameControllerTest {
     @BeforeEach
     public void setUp() {
         restTemplate = new RestTemplate();
+        restTemplate.setErrorHandler(new NoErrorResponseHandler());
+
         uriPrefix = "http://localhost:" + port + "/game";
     }
 
@@ -75,10 +77,12 @@ class GameControllerTest {
 
     @Test
     public void getGameState_gameNotExists_returnsNotFoundResponse() {
-        HttpClientErrorException exception = assertThrows(HttpClientErrorException.class, () -> restTemplate.getForEntity(uriPrefix + "/0", ErrorResponse.class));
+        ResponseEntity<ErrorResponse> response = restTemplate.getForEntity(uriPrefix + "/0", ErrorResponse.class);
 
-        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        assertThat(exception.getMessage()).contains("Game [0] not found");
+        ErrorResponse error = response.getBody();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(error).isNotNull();
+        assertThat(error.getMessage()).contains("Game [0] not found");
     }
 
     @Test
@@ -93,11 +97,12 @@ class GameControllerTest {
         Move move = new Move(game.getId(), 0, new Player("x", "123"));
         HttpEntity<Move> request = new HttpEntity<>(move, headers);
 
-        HttpClientErrorException exception = assertThrows(HttpClientErrorException.class, () -> restTemplate.postForEntity(uriPrefix, request, GameResponse.class));
+        ResponseEntity<ErrorResponse> response = restTemplate.postForEntity(uriPrefix, request, ErrorResponse.class);
 
-        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(exception.getMessage()).contains("Player x provided invalid password");
-
+        ErrorResponse error = response.getBody();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(error).isNotNull();
+        assertThat(error.getMessage()).contains("Player x provided invalid password");
     }
 
     @Test
@@ -133,6 +138,13 @@ class GameControllerTest {
     @Test
     public void getGameStatistic_playerFound_returnsPlayerStatistic() {
 
+    }
+
+    private static class NoErrorResponseHandler extends DefaultResponseErrorHandler {
+        @Override
+        public boolean hasError(ClientHttpResponse response) {
+            return false;
+        }
     }
 
 }
