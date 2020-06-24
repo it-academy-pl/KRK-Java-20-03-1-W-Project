@@ -8,7 +8,9 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import pl.itacademy.tictactoe.domain.ErrorResponse;
 import pl.itacademy.tictactoe.exception.GameNotFoundException;
+import pl.itacademy.tictactoe.exception.IllegalMoveException;
 import pl.itacademy.tictactoe.exception.InvalidPasswordException;
+import pl.itacademy.tictactoe.exception.PlayerNotFoundException;
 
 @ControllerAdvice
 public class ExceptionHandlerResolver extends ResponseEntityExceptionHandler {
@@ -21,6 +23,16 @@ public class ExceptionHandlerResolver extends ResponseEntityExceptionHandler {
     @ExceptionHandler(InvalidPasswordException.class)
     public ResponseEntity<ErrorResponse> handleInvalidPasswordException(InvalidPasswordException exception, WebRequest request) {
         return from(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(IllegalMoveException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalMoveException(IllegalMoveException exception, WebRequest request) {
+        return from(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(PlayerNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePlayerNotFoundException(PlayerNotFoundException exception, WebRequest request) {
+        return from(HttpStatus.NOT_FOUND, exception.getMessage());
     }
 
     private ResponseEntity<ErrorResponse> from(HttpStatus status, String message) {
