@@ -52,6 +52,64 @@ public class GameService implements GameInterface {
         return GameResponse.from(game);
     }
 
+    @Override
+    public GameResponse getGameState(int gameId) {
+        return GameResponse.from(repository.getGameById(gameId)
+                .orElseThrow(() -> new GameNotFoundException("Game [" + gameId + "] not found")));
+    }
+
+    @Override
+    public GameResponse playAgain(int gameId) {
+        Game game = repository.getGameById(gameId)
+                .orElseThrow(() -> new GameNotFoundException("Game [" + gameId + "] not found"));
+        Game newGame = new Game(game.getOPlayer(), game.getXPlayer(), X_MOVE);
+        newGame = repository.addGame(newGame);
+
+        return GameResponse.from(newGame);
+    }
+
+    @Override
+    public GameStatistics getGameStatistic(Player player) {
+        repository.games().stream()
+                .filter(game -> game.getXPlayer().equals(player) || game.getOPlayer().equals(player))
+                .findFirst()
+                .orElseThrow(() -> new PlayerNotFoundException("Player " + player.getName() + " not found."));
+
+        int wonAsXPlayer = Math.toIntExact(repository.games().stream()
+                .filter(game -> game.getXPlayer().equals(player))
+                .filter(game -> game.getState().equals(X_WON))
+                .count());
+
+        int lostAsXPlayer = Math.toIntExact(repository.games().stream()
+                .filter(game -> game.getXPlayer().equals(player))
+                .filter(game -> game.getState().equals(O_WON))
+                .count());
+        int drawAsXPlayer = Math.toIntExact(repository.games().stream()
+                .filter(game -> game.getXPlayer().equals(player))
+                .filter(game -> game.getState().equals(DRAW))
+                .count());
+
+        int wonAsOPlayer = Math.toIntExact(repository.games().stream()
+                .filter(game -> game.getOPlayer().equals(player))
+                .filter(game -> game.getState().equals(O_WON))
+                .count());
+        int lostAsOPlayer = Math.toIntExact(repository.games().stream()
+                .filter(game -> game.getOPlayer().equals(player))
+                .filter(game -> game.getState().equals(X_WON))
+                .count());
+
+        int drawAsOPlayer = Math.toIntExact(repository.games().stream()
+                .filter(game -> game.getOPlayer().equals(player))
+                .filter(game -> game.getState().equals(DRAW))
+                .count());
+
+        return new GameStatistics(
+                wonAsXPlayer + wonAsOPlayer,
+                lostAsXPlayer + lostAsOPlayer,
+                drawAsXPlayer + drawAsOPlayer);
+    }
+
+
     private void assertCellIsEmpty(int cellIndex, Game game) {
         char cellValue = game.getBoard()[cellIndex];
         if (cellValue == 'X' || cellValue == 'O') {
@@ -139,63 +197,6 @@ public class GameService implements GameInterface {
             }
         }
         return nextGameState;
-    }
-
-    @Override
-    public GameResponse getGameState(int gameId) {
-        return GameResponse.from(repository.getGameById(gameId)
-                .orElseThrow(() -> new GameNotFoundException("Game [" + gameId + "] not found")));
-    }
-
-    @Override
-    public GameResponse playAgain(int gameId) {
-        Game game = repository.getGameById(gameId)
-                .orElseThrow(() -> new GameNotFoundException("Game [" + gameId + "] not found"));
-        Game newGame = new Game(game.getOPlayer(), game.getXPlayer(), X_MOVE);
-        newGame = repository.addGame(newGame);
-
-        return GameResponse.from(newGame);
-    }
-
-    @Override
-    public GameStatistics getGameStatistic(Player player) {
-        repository.games().stream()
-                .filter(game -> game.getXPlayer().equals(player) || game.getOPlayer().equals(player))
-                .findFirst()
-                .orElseThrow(() -> new PlayerNotFoundException("Player " + player.getName() + " not found."));
-
-        int wonAsXPlayer = Math.toIntExact(repository.games().stream()
-                .filter(game -> game.getXPlayer().equals(player))
-                .filter(game -> game.getState().equals(X_WON))
-                .count());
-
-        int lostAsXPlayer = Math.toIntExact(repository.games().stream()
-                .filter(game -> game.getXPlayer().equals(player))
-                .filter(game -> game.getState().equals(O_WON))
-                .count());
-        int drawAsXPlayer = Math.toIntExact(repository.games().stream()
-                .filter(game -> game.getXPlayer().equals(player))
-                .filter(game -> game.getState().equals(DRAW))
-                .count());
-
-        int wonAsOPlayer = Math.toIntExact(repository.games().stream()
-                .filter(game -> game.getOPlayer().equals(player))
-                .filter(game -> game.getState().equals(O_WON))
-                .count());
-        int lostAsOPlayer = Math.toIntExact(repository.games().stream()
-                .filter(game -> game.getOPlayer().equals(player))
-                .filter(game -> game.getState().equals(X_WON))
-                .count());
-
-        int drawAsOPlayer = Math.toIntExact(repository.games().stream()
-                .filter(game -> game.getOPlayer().equals(player))
-                .filter(game -> game.getState().equals(DRAW))
-                .count());
-
-        return new GameStatistics(
-                wonAsXPlayer + wonAsOPlayer,
-                lostAsXPlayer + lostAsOPlayer,
-                drawAsXPlayer + drawAsOPlayer);
     }
 
 }
