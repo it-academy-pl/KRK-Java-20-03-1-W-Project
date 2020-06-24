@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import pl.itacademy.tictactoe.domain.GameResponse;
+import pl.itacademy.tictactoe.domain.GameStatistics;
 import pl.itacademy.tictactoe.domain.Move;
 import pl.itacademy.tictactoe.domain.Player;
 
@@ -30,6 +31,16 @@ public class GameController {
     @PostMapping
     public ResponseEntity<GameResponse> makeMove(@RequestBody Move move) {
         return ResponseEntity.ok(gameInterface.makeMove(move));
+    }
+
+    @GetMapping("/again/{gameId}")
+    public ResponseEntity<GameResponse> playAgain(@PathVariable("gameId") Integer gameId) {
+        return ResponseEntity.ok(gameInterface.playAgain(gameId));
+    }
+
+    @PostMapping("/stats")
+    public ResponseEntity<GameStatistics> getGameStatistic(@RequestBody Player player) {
+        return ResponseEntity.ok(gameInterface.getGameStatistic(player));
     }
 
 }
