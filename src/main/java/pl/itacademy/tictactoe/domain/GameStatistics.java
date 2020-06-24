@@ -17,6 +17,42 @@ public class GameStatistics {
         this.draw = draw;
     }
 
+    public void accumulate(Game game, Player player) {
+        if (game.getXPlayer().equals(player)) {
+            switch (game.getState()) {
+                case X_WON:
+                    this.won += 1;
+                    break;
+                case O_WON:
+                    this.lost += 1;
+                    break;
+                case DRAW:
+                    this.draw += 1;
+                    break;
+            }
+        }
+
+        if (game.getOPlayer().equals(player)) {
+            switch (game.getState()) {
+                case X_WON:
+                    this.lost += 1;
+                    break;
+                case O_WON:
+                    this.won += 1;
+                    break;
+                case DRAW:
+                    this.draw += 1;
+                    break;
+            }
+        }
+    }
+
+    public void combine(GameStatistics other) {
+        this.won += other.won;
+        this.lost += other.lost;
+        this.draw += other.draw;
+    }
+
     public int getWon() {
         return won;
     }
