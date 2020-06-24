@@ -3,9 +3,13 @@ package pl.itacademy.tictactoe.domain;
 import java.util.Objects;
 
 public class GameStatistics {
-    private final int won;
-    private final int lost;
-    private final int draw;
+    private int won;
+    private int lost;
+    private int draw;
+
+    public GameStatistics() {
+
+    }
 
     public GameStatistics(int won, int lost, int draw) {
         this.won = won;
