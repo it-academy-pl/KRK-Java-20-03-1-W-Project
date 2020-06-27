@@ -15,6 +15,8 @@ import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import pl.itacademy.tictactoe.domain.*;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -138,7 +140,7 @@ class GameControllerTest {
 
         Move moveX = new Move(game.getId(), 0, new Player("x", "pass"));
         HttpEntity<Move> request = new HttpEntity<>(moveX, headers);
-        ResponseEntity<GameResponse> responseX = restTemplate.postForEntity(uriPrefix, request, GameResponse.class);
+        restTemplate.postForEntity(uriPrefix, request, GameResponse.class);
 
         Move moveO = new Move(game.getId(), 0, new Player("o", "pass"));
         HttpEntity<Move> requestO = new HttpEntity<>(moveO, headers);
@@ -207,13 +209,17 @@ class GameControllerTest {
         assertThat(gameResponse.getGameId()).isEqualTo(gameId + 1);
         assertThat(gameResponse.getState()).isEqualTo(GameState.X_MOVE);
 
+        Optional<Game> newGame = gameRepository.getGameById(gameId + 1);
+        assertThat(newGame).isPresent();
+        assertThat(newGame.get().getXPlayer()).isEqualTo(oPlayer);
+        assertThat(newGame.get().getOPlayer()).isEqualTo(xPlayer);
     }
 
     @Test
     public void getGameStatistic_playerNotFound_returnsNotFoundResponse() {
         Player xPlayer = new Player("x", "pass");
         Player oPlayer = new Player("o", "pass");
-        Game game = gameRepository.addGame(new Game(xPlayer, oPlayer, GameState.DRAW));
+        gameRepository.addGame(new Game(xPlayer, oPlayer, GameState.DRAW));
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");
@@ -231,10 +237,10 @@ class GameControllerTest {
     public void getGameStatistic_playerFound_returnsPlayerStatistic() {
         Player xPlayer = new Player("x", "pass");
         Player oPlayer = new Player("o", "pass");
-        Game game0 = gameRepository.addGame(new Game(xPlayer, oPlayer, GameState.DRAW));
-        Game game1 = gameRepository.addGame(new Game(xPlayer, oPlayer, GameState.X_WON));
-        Game game2 = gameRepository.addGame(new Game(xPlayer, oPlayer, GameState.X_WON));
-        Game game3 = gameRepository.addGame(new Game(xPlayer, oPlayer, GameState.O_WON));
+        gameRepository.addGame(new Game(xPlayer, oPlayer, GameState.DRAW));
+        gameRepository.addGame(new Game(xPlayer, oPlayer, GameState.X_WON));
+        gameRepository.addGame(new Game(xPlayer, oPlayer, GameState.X_WON));
+        gameRepository.addGame(new Game(xPlayer, oPlayer, GameState.O_WON));
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");

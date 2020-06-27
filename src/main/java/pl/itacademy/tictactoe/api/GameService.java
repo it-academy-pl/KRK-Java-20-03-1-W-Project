@@ -6,7 +6,9 @@ import pl.itacademy.tictactoe.exception.IllegalMoveException;
 import pl.itacademy.tictactoe.exception.InvalidPasswordException;
 import pl.itacademy.tictactoe.exception.PlayerNotFoundException;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static pl.itacademy.tictactoe.domain.GameState.*;
 
@@ -70,14 +72,14 @@ public class GameService implements GameInterface {
 
     @Override
     public GameStatistics getGameStatistic(Player player) {
-
-        repository.games().stream()
+        List<Game> gamesForPlayer = repository.games().stream()
                 .filter(game -> game.getXPlayer().equals(player) || game.getOPlayer().equals(player))
-                .findFirst()
-                .orElseThrow(() -> new PlayerNotFoundException("Player " + player.getName() + " not found."));
+                .collect(Collectors.toList());
+        if (gamesForPlayer.isEmpty()) {
+            throw new PlayerNotFoundException("Player " + player.getName() + " not found.");
+        }
 
-        return repository.games().stream()
-                .filter(game -> game.getXPlayer().equals(player) || game.getOPlayer().equals(player))
+        return gamesForPlayer.stream()
                 .collect(GameStatistics::new,
                         (stats, game) -> stats.accumulate(game, player),
                         GameStatistics::combine);

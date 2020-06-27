@@ -15,30 +15,19 @@ import pl.itacademy.tictactoe.exception.PlayerNotFoundException;
 @ControllerAdvice
 public class ExceptionHandlerResolver extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(GameNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleGameNotFoundException(GameNotFoundException exception, WebRequest request) {
+    @ExceptionHandler({GameNotFoundException.class, PlayerNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleGameNotFoundException(Exception exception, WebRequest request) {
         return from(HttpStatus.NOT_FOUND, exception.getMessage());
     }
 
-    @ExceptionHandler(InvalidPasswordException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidPasswordException(InvalidPasswordException exception, WebRequest request) {
+    @ExceptionHandler({InvalidPasswordException.class, IllegalMoveException.class})
+    public ResponseEntity<ErrorResponse> handleInvalidPasswordException(Exception exception, WebRequest request) {
         return from(HttpStatus.BAD_REQUEST, exception.getMessage());
-    }
-
-    @ExceptionHandler(IllegalMoveException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalMoveException(IllegalMoveException exception, WebRequest request) {
-        return from(HttpStatus.BAD_REQUEST, exception.getMessage());
-    }
-
-    @ExceptionHandler(PlayerNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handlePlayerNotFoundException(PlayerNotFoundException exception, WebRequest request) {
-        return from(HttpStatus.NOT_FOUND, exception.getMessage());
     }
 
     private ResponseEntity<ErrorResponse> from(HttpStatus status, String message) {
         return ResponseEntity.status(status)
                 .body(new ErrorResponse(message));
     }
-
 
 }
