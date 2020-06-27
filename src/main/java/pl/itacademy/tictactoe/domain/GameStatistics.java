@@ -3,14 +3,54 @@ package pl.itacademy.tictactoe.domain;
 import java.util.Objects;
 
 public class GameStatistics {
-    private final int won;
-    private final int lost;
-    private final int draw;
+    private int won;
+    private int lost;
+    private int draw;
+
+    public GameStatistics() {
+
+    }
 
     public GameStatistics(int won, int lost, int draw) {
         this.won = won;
         this.lost = lost;
         this.draw = draw;
+    }
+
+    public void accumulate(Game game, Player player) {
+        if (game.getXPlayer().equals(player)) {
+            switch (game.getState()) {
+                case X_WON:
+                    this.won += 1;
+                    break;
+                case O_WON:
+                    this.lost += 1;
+                    break;
+                case DRAW:
+                    this.draw += 1;
+                    break;
+            }
+        }
+
+        if (game.getOPlayer().equals(player)) {
+            switch (game.getState()) {
+                case X_WON:
+                    this.lost += 1;
+                    break;
+                case O_WON:
+                    this.won += 1;
+                    break;
+                case DRAW:
+                    this.draw += 1;
+                    break;
+            }
+        }
+    }
+
+    public void combine(GameStatistics other) {
+        this.won += other.won;
+        this.lost += other.lost;
+        this.draw += other.draw;
     }
 
     public int getWon() {

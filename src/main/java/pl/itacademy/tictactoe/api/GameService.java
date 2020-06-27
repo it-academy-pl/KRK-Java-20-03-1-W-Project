@@ -6,7 +6,9 @@ import pl.itacademy.tictactoe.exception.IllegalMoveException;
 import pl.itacademy.tictactoe.exception.InvalidPasswordException;
 import pl.itacademy.tictactoe.exception.PlayerNotFoundException;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static pl.itacademy.tictactoe.domain.GameState.*;
 
@@ -50,6 +52,37 @@ public class GameService implements GameInterface {
         GameState gameStateAfterMove = getGameStateAfterMove(moveChar, game);
         game.setState(gameStateAfterMove);
         return GameResponse.from(game);
+    }
+
+    @Override
+    public GameResponse getGameState(int gameId) {
+        return GameResponse.from(repository.getGameById(gameId)
+                .orElseThrow(() -> new GameNotFoundException("Game [" + gameId + "] not found")));
+    }
+
+    @Override
+    public GameResponse playAgain(int gameId) {
+        Game game = repository.getGameById(gameId)
+                .orElseThrow(() -> new GameNotFoundException("Game [" + gameId + "] not found"));
+        Game newGame = new Game(game.getOPlayer(), game.getXPlayer(), X_MOVE);
+        newGame = repository.addGame(newGame);
+
+        return GameResponse.from(newGame);
+    }
+
+    @Override
+    public GameStatistics getGameStatistic(Player player) {
+        List<Game> gamesForPlayer = repository.games().stream()
+                .filter(game -> game.getXPlayer().equals(player) || game.getOPlayer().equals(player))
+                .collect(Collectors.toList());
+        if (gamesForPlayer.isEmpty()) {
+            throw new PlayerNotFoundException("Player " + player.getName() + " not found.");
+        }
+
+        return gamesForPlayer.stream()
+                .collect(GameStatistics::new,
+                        (stats, game) -> stats.accumulate(game, player),
+                        GameStatistics::combine);
     }
 
     private void assertCellIsEmpty(int cellIndex, Game game) {
@@ -139,63 +172,6 @@ public class GameService implements GameInterface {
             }
         }
         return nextGameState;
-    }
-
-    @Override
-    public GameResponse getGameState(int gameId) {
-        return GameResponse.from(repository.getGameById(gameId)
-                .orElseThrow(() -> new GameNotFoundException("Game [" + gameId + "] not found")));
-    }
-
-    @Override
-    public GameResponse playAgain(int gameId) {
-        Game game = repository.getGameById(gameId)
-                .orElseThrow(() -> new GameNotFoundException("Game [" + gameId + "] not found"));
-        Game newGame = new Game(game.getOPlayer(), game.getXPlayer(), X_MOVE);
-        newGame = repository.addGame(newGame);
-
-        return GameResponse.from(newGame);
-    }
-
-    @Override
-    public GameStatistics getGameStatistic(Player player) {
-        repository.games().stream()
-                .filter(game -> game.getXPlayer().equals(player) || game.getOPlayer().equals(player))
-                .findFirst()
-                .orElseThrow(() -> new PlayerNotFoundException("Player " + player.getName() + " not found."));
-
-        int wonAsXPlayer = Math.toIntExact(repository.games().stream()
-                .filter(game -> game.getXPlayer().equals(player))
-                .filter(game -> game.getState().equals(X_WON))
-                .count());
-
-        int lostAsXPlayer = Math.toIntExact(repository.games().stream()
-                .filter(game -> game.getXPlayer().equals(player))
-                .filter(game -> game.getState().equals(O_WON))
-                .count());
-        int drawAsXPlayer = Math.toIntExact(repository.games().stream()
-                .filter(game -> game.getXPlayer().equals(player))
-                .filter(game -> game.getState().equals(DRAW))
-                .count());
-
-        int wonAsOPlayer = Math.toIntExact(repository.games().stream()
-                .filter(game -> game.getOPlayer().equals(player))
-                .filter(game -> game.getState().equals(O_WON))
-                .count());
-        int lostAsOPlayer = Math.toIntExact(repository.games().stream()
-                .filter(game -> game.getOPlayer().equals(player))
-                .filter(game -> game.getState().equals(X_WON))
-                .count());
-
-        int drawAsOPlayer = Math.toIntExact(repository.games().stream()
-                .filter(game -> game.getOPlayer().equals(player))
-                .filter(game -> game.getState().equals(DRAW))
-                .count());
-
-        return new GameStatistics(
-                wonAsXPlayer + wonAsOPlayer,
-                lostAsXPlayer + lostAsOPlayer,
-                drawAsXPlayer + drawAsOPlayer);
     }
 
 }
